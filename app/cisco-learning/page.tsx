@@ -1,26 +1,212 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useRef } from "react"
 import Link from "next/link"
-import { Settings, Award, BookOpen, Users, Clock, CheckCircle, ArrowRight, Star, ChevronDown, Menu } from "lucide-react"
+import {
+  Settings,
+  Award,
+  BookOpen,
+  Users,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  Star,
+  ChevronDown,
+  Menu,
+  Mail,
+  Phone,
+} from "lucide-react"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+// Simple inline components to avoid import issues
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}>{children}</div>
+}
 
-/* -------------------------------------------------------------------------- */
-/*                               LOCAL HEADER                                 */
-/* -------------------------------------------------------------------------- */
+function CardContent({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`p-6 pt-0 ${className}`}>{children}</div>
+}
+
+function CardHeader({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>{children}</div>
+}
+
+function CardTitle({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
+}
+
+function CardDescription({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>
+}
+
+function Button({
+  children,
+  className = "",
+  onClick,
+  disabled = false,
+  type = "button",
+  size = "default",
+  variant = "default",
+}: {
+  children: React.ReactNode
+  className?: string
+  onClick?: () => void
+  disabled?: boolean
+  type?: "button" | "submit"
+  size?: "default" | "lg"
+  variant?: "default" | "outline"
+}) {
+  const baseClasses =
+    "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background"
+  const sizeClasses = size === "lg" ? "h-11 px-8" : "h-10 py-2 px-4"
+  const variantClasses =
+    variant === "outline"
+      ? "border border-input hover:bg-accent hover:text-accent-foreground"
+      : "bg-primary text-primary-foreground hover:bg-primary/90"
+
+  return (
+    <button
+      type={type}
+      className={`${baseClasses} ${sizeClasses} ${variantClasses} ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+function Input({
+  id,
+  type = "text",
+  value,
+  onChange,
+  required = false,
+  className = "",
+}: {
+  id?: string
+  type?: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  required?: boolean
+  className?: string
+}) {
+  return (
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    />
+  )
+}
+
+function Textarea({
+  id,
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+  className = "",
+}: {
+  id?: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  placeholder?: string
+  rows?: number
+  className?: string
+}) {
+  return (
+    <textarea
+      id={id}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      rows={rows}
+      className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    />
+  )
+}
+
+function Select({
+  value,
+  onValueChange,
+  children,
+}: {
+  value: string
+  onValueChange: (value: string) => void
+  children: React.ReactNode
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onValueChange(e.target.value)}
+      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {children}
+    </select>
+  )
+}
+
+function SelectTrigger({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
+
+function SelectValue({ placeholder }: { placeholder: string }) {
+  return (
+    <option value="" disabled>
+      {placeholder}
+    </option>
+  )
+}
+
+function SelectContent({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
+
+function SelectItem({ value, children }: { value: string; children: React.ReactNode }) {
+  return <option value={value}>{children}</option>
+}
+
+function Checkbox({
+  id,
+  checked,
+  onCheckedChange,
+}: {
+  id?: string
+  checked: boolean
+  onCheckedChange: (checked: boolean) => void
+}) {
+  return (
+    <input
+      id={id}
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onCheckedChange(e.target.checked)}
+      className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+    />
+  )
+}
+
+// Header component
 function Header() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-white/70 backdrop-blur border-b border-gray-200">
+    <header className="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold text-teal-600">
           SparkleSmart
@@ -31,25 +217,25 @@ function Header() {
         </button>
 
         <ul
-          className={`${open ? "block" : "hidden"} absolute md:static top-16 left-0 w-full md:w-auto bg-white md:flex gap-6 p-4 md:p-0`}
+          className={`${open ? "block" : "hidden"} absolute md:static top-16 left-0 w-full md:w-auto bg-white md:flex gap-6 p-4 md:p-0 shadow-lg md:shadow-none`}
         >
           <li>
-            <Link href="/" className="text-gray-700 hover:text-teal-600">
+            <Link href="/" className="block py-2 text-gray-700 hover:text-teal-600">
               Home
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-teal-600">
+            <Link href="/services" className="block py-2 text-gray-700 hover:text-teal-600">
               Services
             </Link>
           </li>
           <li>
-            <Link href="/cisco-learning" className="text-gray-700 hover:text-teal-600">
+            <Link href="/cisco-learning" className="block py-2 text-gray-700 hover:text-teal-600">
               Cisco Academy
             </Link>
           </li>
           <li>
-            <Link href="/contact" className="text-gray-700 hover:text-teal-600">
+            <Link href="/contact" className="block py-2 text-gray-700 hover:text-teal-600">
               Contact
             </Link>
           </li>
@@ -59,32 +245,81 @@ function Header() {
   )
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               LOCAL FOOTER                                 */
-/* -------------------------------------------------------------------------- */
+// Footer component
 function Footer() {
   return (
-    <footer className="bg-gray-100 py-10 mt-20">
-      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-gray-600">
-          © {new Date().getFullYear()} SparkleSmart Technologies. All rights reserved.
-        </p>
-        <div className="flex gap-4 text-sm">
-          <Link href="/privacy" className="hover:text-teal-600">
-            Privacy
-          </Link>
-          <Link href="/terms" className="hover:text-teal-600">
-            Terms
-          </Link>
+    <footer className="bg-gray-900 text-white py-12">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-xl font-bold mb-4">SparkleSmart Technologies</h3>
+            <p className="text-gray-400 text-sm">
+              Digital innovation leaders providing comprehensive technology solutions.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Services</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+              <li>
+                <Link href="/services" className="hover:text-white">
+                  Web Development
+                </Link>
+              </li>
+              <li>
+                <Link href="/services" className="hover:text-white">
+                  Mobile Apps
+                </Link>
+              </li>
+              <li>
+                <Link href="/cisco-learning" className="hover:text-white">
+                  Cisco Training
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Company</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+              <li>
+                <Link href="/about" className="hover:text-white">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/team" className="hover:text-white">
+                  Team
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Contact</h4>
+            <div className="space-y-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <span>info@sparklesmartec.com</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <span>+266-63651639</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+          <p>© {new Date().getFullYear()} SparkleSmart Technologies. All rights reserved.</p>
         </div>
       </div>
     </footer>
   )
 }
 
-/* -------------------------------------------------------------------------- */
-/*                           CISCO LEARNING PAGE                              */
-/* -------------------------------------------------------------------------- */
+// Main component
 export default function CiscoLearningPage() {
   const enrollFormRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
@@ -99,18 +334,15 @@ export default function CiscoLearningPage() {
   })
 
   const handleEnrollClick = (courseId: string) => {
-    setFormData((p) => ({ ...p, course: courseId }))
+    setFormData((prev) => ({ ...prev, course: courseId }))
     enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     alert("Enrollment submitted successfully! We will contact you soon.")
-    console.log(formData)
+    console.log("Form submitted:", formData)
   }
-
-  /* --------------------------- COURSE DATA (same) -------------------------- */
-  /*  … (unchanged courseCategories & benefits arrays from previous message)   */
 
   const courseCategories = [
     {
@@ -522,23 +754,23 @@ export default function CiscoLearningPage() {
     <div className="bg-white">
       <Header />
 
-      {/* ================================ HERO =============================== */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden bg-gradient-to-br from-white via-teal-50/30 to-coral-50/30">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-4 relative overflow-hidden bg-gradient-to-br from-white via-teal-50/30 to-red-50/30">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-100/40 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-coral-100/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-100/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <div className="space-y-8">
-            <Badge className="bg-gradient-to-r from-teal-100 to-coral-100 text-teal-700 border-teal-200 px-4 py-2">
+            <Badge className="bg-gradient-to-r from-teal-100 to-red-100 text-teal-700 border-teal-200 px-4 py-2">
               🎓 Cisco Learning Academy
             </Badge>
 
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Master{" "}
-                <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">Cisco</span>{" "}
+                <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">Cisco</span>{" "}
                 Technologies
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
@@ -551,7 +783,7 @@ export default function CiscoLearningPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 onClick={() => enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })}
               >
                 Enroll Now <ChevronDown className="w-5 h-5 ml-2" />
@@ -591,19 +823,19 @@ export default function CiscoLearningPage() {
                 alt="Cisco Learning and Training"
                 className="w-full h-auto rounded-2xl shadow-2xl border border-gray-100"
               />
-              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/10 to-coral-500/10 rounded-2xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/10 to-red-500/10 rounded-2xl"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ============================== COURSES ============================== */}
+      {/* Courses Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Our{" "}
-              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">
                 Training Programs
               </span>
             </h2>
@@ -616,7 +848,7 @@ export default function CiscoLearningPage() {
             {courseCategories.map((category) => (
               <div key={category.category}>
                 <h3 className="text-3xl font-bold text-center mb-8">
-                  <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">
                     {category.category}
                   </span>{" "}
                   Courses
@@ -627,7 +859,7 @@ export default function CiscoLearningPage() {
                     <Card
                       key={course.id}
                       className={`bg-white border-gray-200 hover:border-teal-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
-                        course.featured ? "ring-2 ring-teal-200 bg-gradient-to-br from-teal-50/50 to-coral-50/50" : ""
+                        course.featured ? "ring-2 ring-teal-200 bg-gradient-to-br from-teal-50/50 to-red-50/50" : ""
                       }`}
                     >
                       <CardContent className="p-6">
@@ -685,7 +917,7 @@ export default function CiscoLearningPage() {
                         </div>
 
                         <Button
-                          className="w-full bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white shadow-lg"
+                          className="w-full bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600 text-white shadow-lg"
                           onClick={() => handleEnrollClick(course.id)}
                         >
                           Enroll Now <ArrowRight className="w-4 h-4 ml-2" />
@@ -700,13 +932,13 @@ export default function CiscoLearningPage() {
         </div>
       </section>
 
-      {/* ============================== BENEFITS ============================= */}
+      {/* Benefits Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Why Choose Our{" "}
-              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">
                 Cisco Training?
               </span>
             </h2>
@@ -716,10 +948,10 @@ export default function CiscoLearningPage() {
             {benefits.map((benefit, index) => (
               <Card
                 key={index}
-                className="bg-white border-gray-200 hover:border-coral-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+                className="bg-white border-gray-200 hover:border-red-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
               >
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-coral-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
                     {benefit.icon}
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">{benefit.title}</h3>
@@ -731,12 +963,12 @@ export default function CiscoLearningPage() {
         </div>
       </section>
 
-      {/* ============================ ENROLL FORM ============================ */}
+      {/* Enrollment Form Section */}
       <section className="py-20 px-4 bg-gray-50" ref={enrollFormRef} id="enrollment-form">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">
                 Enroll Today
               </span>
             </h2>
@@ -897,7 +1129,7 @@ export default function CiscoLearningPage() {
                   <Checkbox
                     id="terms"
                     checked={formData.terms}
-                    onCheckedChange={(checked) => setFormData({ ...formData, terms: checked as boolean })}
+                    onCheckedChange={(checked) => setFormData({ ...formData, terms: checked })}
                   />
                   <label htmlFor="terms" className="text-sm text-gray-700">
                     I agree to the terms and conditions and privacy policy *
@@ -906,7 +1138,7 @@ export default function CiscoLearningPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white py-4 text-lg font-semibold shadow-lg"
+                  className="w-full bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600 text-white py-4 text-lg font-semibold shadow-lg"
                   disabled={!formData.terms}
                 >
                   Submit Enrollment Application
@@ -940,12 +1172,12 @@ export default function CiscoLearningPage() {
         </div>
       </section>
 
-      {/* ================================ CTA ================================ */}
-      <section className="py-20 px-4 bg-gradient-to-br from-teal-50 to-coral-50">
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-teal-50 to-red-50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             Ready to Start Your{" "}
-            <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-teal-600 to-red-500 bg-clip-text text-transparent">
               Cisco Journey?
             </span>
           </h2>
@@ -956,7 +1188,7 @@ export default function CiscoLearningPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               onClick={() => enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })}
             >
               Get Started Today <ArrowRight className="w-5 h-5 ml-2" />
