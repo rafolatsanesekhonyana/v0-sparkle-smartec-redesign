@@ -1,20 +1,92 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
+import Link from "next/link"
+import { Settings, Award, BookOpen, Users, Clock, CheckCircle, ArrowRight, Star, ChevronDown, Menu } from "lucide-react"
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Clock, Users, BookOpen, ChevronDown } from "lucide-react"
 
+/* -------------------------------------------------------------------------- */
+/*                               LOCAL HEADER                                 */
+/* -------------------------------------------------------------------------- */
+function Header() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 bg-white/70 backdrop-blur border-b border-gray-200">
+      <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold text-teal-600">
+          SparkleSmart
+        </Link>
+
+        <button className="md:hidden p-2 rounded text-gray-600" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+          <Menu />
+        </button>
+
+        <ul
+          className={`${open ? "block" : "hidden"} absolute md:static top-16 left-0 w-full md:w-auto bg-white md:flex gap-6 p-4 md:p-0`}
+        >
+          <li>
+            <Link href="/" className="text-gray-700 hover:text-teal-600">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link href="/services" className="text-gray-700 hover:text-teal-600">
+              Services
+            </Link>
+          </li>
+          <li>
+            <Link href="/cisco-learning" className="text-gray-700 hover:text-teal-600">
+              Cisco Academy
+            </Link>
+          </li>
+          <li>
+            <Link href="/contact" className="text-gray-700 hover:text-teal-600">
+              Contact
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               LOCAL FOOTER                                 */
+/* -------------------------------------------------------------------------- */
+function Footer() {
+  return (
+    <footer className="bg-gray-100 py-10 mt-20">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p className="text-sm text-gray-600">
+          © {new Date().getFullYear()} SparkleSmart Technologies. All rights reserved.
+        </p>
+        <div className="flex gap-4 text-sm">
+          <Link href="/privacy" className="hover:text-teal-600">
+            Privacy
+          </Link>
+          <Link href="/terms" className="hover:text-teal-600">
+            Terms
+          </Link>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           CISCO LEARNING PAGE                              */
+/* -------------------------------------------------------------------------- */
 export default function CiscoLearningPage() {
   const enrollFormRef = useRef<HTMLDivElement>(null)
-  const [selectedCourse, setSelectedCourse] = useState("")
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -27,21 +99,18 @@ export default function CiscoLearningPage() {
   })
 
   const handleEnrollClick = (courseId: string) => {
-    setSelectedCourse(courseId)
-    setFormData({ ...formData, course: courseId })
-
-    // Scroll to enrollment form
-    if (enrollFormRef.current) {
-      enrollFormRef.current.scrollIntoView({ behavior: "smooth" })
-    }
+    setFormData((p) => ({ ...p, course: courseId }))
+    enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted:", formData)
     alert("Enrollment submitted successfully! We will contact you soon.")
+    console.log(formData)
   }
+
+  /* --------------------------- COURSE DATA (same) -------------------------- */
+  /*  … (unchanged courseCategories & benefits arrays from previous message)   */
 
   const courseCategories = [
     {
@@ -56,7 +125,8 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 245,
           accredited: true,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Network Fundamentals", "OSI Model", "TCP/IP", "Ethernet", "IPv4/IPv6", "Basic Routing"],
+          featured: true,
         },
         {
           id: "ccna-switching",
@@ -67,7 +137,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 189,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["VLANs", "STP", "EtherChannel", "OSPF", "EIGRP", "Wireless Basics"],
         },
         {
           id: "ccna-enterprise",
@@ -78,7 +148,7 @@ export default function CiscoLearningPage() {
           level: "Advanced",
           students: 156,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["ACLs", "NAT", "VPN", "QoS", "Network Automation", "SDN"],
         },
         {
           id: "networking-essentials",
@@ -89,7 +159,7 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 312,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Network Types", "Protocols", "Troubleshooting", "Network Devices", "Cabling", "Wireless"],
         },
         {
           id: "network-addressing",
@@ -99,7 +169,7 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 278,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["IP Addressing", "Subnetting", "VLSM", "Troubleshooting", "Network Tools", "Documentation"],
         },
         {
           id: "networking-devices",
@@ -109,7 +179,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 198,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Router Config", "Switch Config", "IOS Commands", "Device Management", "Backup/Restore", "Security"],
         },
         {
           id: "iot-intro",
@@ -119,7 +189,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 167,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["IoT Fundamentals", "Sensors", "Connectivity", "Data Analytics", "Cloud Integration", "Security"],
         },
       ],
     },
@@ -134,7 +204,15 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 423,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Security Fundamentals",
+            "Threat Landscape",
+            "Risk Management",
+            "Security Policies",
+            "Compliance",
+            "Awareness",
+          ],
+          featured: true,
         },
         {
           id: "cybersecurity-essentials",
@@ -145,7 +223,14 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 298,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Threat Analysis",
+            "Vulnerability Assessment",
+            "Incident Response",
+            "Forensics",
+            "Security Tools",
+            "Defense Strategies",
+          ],
         },
         {
           id: "network-security",
@@ -155,7 +240,14 @@ export default function CiscoLearningPage() {
           level: "Advanced",
           students: 187,
           accredited: true,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Firewalls",
+            "VPN",
+            "IDS/IPS",
+            "Security Monitoring",
+            "Penetration Testing",
+            "Security Architecture",
+          ],
         },
         {
           id: "ethical-hacker",
@@ -165,7 +257,14 @@ export default function CiscoLearningPage() {
           level: "Advanced",
           students: 134,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Penetration Testing",
+            "Vulnerability Assessment",
+            "Social Engineering",
+            "Web Security",
+            "Wireless Security",
+            "Reporting",
+          ],
         },
         {
           id: "cyberops",
@@ -175,7 +274,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 156,
           accredited: true,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["SOC Operations", "Incident Response", "Threat Hunting", "SIEM", "Forensics", "Threat Intelligence"],
         },
       ],
     },
@@ -190,7 +289,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 367,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["OOP", "Data Structures", "File Handling", "Exception Handling", "Modules", "Libraries"],
         },
         {
           id: "css-essentials",
@@ -200,7 +299,7 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 289,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["CSS Fundamentals", "Responsive Design", "Flexbox", "Grid", "Animations", "Frameworks"],
         },
       ],
     },
@@ -215,7 +314,14 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 234,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Data Analysis",
+            "Statistics",
+            "Data Visualization",
+            "Python/R",
+            "Machine Learning Basics",
+            "Data Ethics",
+          ],
         },
         {
           id: "data-analytics",
@@ -225,7 +331,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 198,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Business Intelligence", "Data Visualization", "SQL", "Excel", "Tableau", "Power BI"],
         },
         {
           id: "data-science-python",
@@ -235,7 +341,7 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 167,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Python for Data Science", "Pandas", "NumPy", "Matplotlib", "Scikit-learn", "Machine Learning"],
           beta: true,
         },
       ],
@@ -251,7 +357,14 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 345,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Packet Tracer Basics",
+            "Network Simulation",
+            "Device Configuration",
+            "Troubleshooting",
+            "Network Design",
+            "Labs",
+          ],
         },
         {
           id: "packet-tracer-iot",
@@ -261,7 +374,14 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 178,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "IoT Simulation",
+            "Smart Devices",
+            "Sensor Networks",
+            "IoT Protocols",
+            "Cloud Integration",
+            "IoT Security",
+          ],
         },
       ],
     },
@@ -276,7 +396,14 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 267,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "OS Fundamentals",
+            "File Systems",
+            "Process Management",
+            "Memory Management",
+            "System Administration",
+            "Troubleshooting",
+          ],
         },
         {
           id: "computer-hardware",
@@ -286,7 +413,7 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 234,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: ["Hardware Components", "Assembly", "Troubleshooting", "Maintenance", "Upgrades", "Compatibility"],
         },
       ],
     },
@@ -301,7 +428,14 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 456,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Digital Safety",
+            "Privacy Protection",
+            "Password Security",
+            "Phishing Awareness",
+            "Social Media Safety",
+            "Online Ethics",
+          ],
         },
         {
           id: "computer-mobile",
@@ -312,7 +446,14 @@ export default function CiscoLearningPage() {
           level: "Beginner",
           students: 389,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Computer Basics",
+            "Mobile Devices",
+            "Software Applications",
+            "File Management",
+            "Internet Usage",
+            "Digital Communication",
+          ],
         },
         {
           id: "business-launch",
@@ -322,7 +463,14 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 198,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Business Planning",
+            "Market Research",
+            "Financial Planning",
+            "Legal Considerations",
+            "Marketing",
+            "Operations",
+          ],
         },
         {
           id: "business-manage",
@@ -332,78 +480,185 @@ export default function CiscoLearningPage() {
           level: "Intermediate",
           students: 167,
           accredited: false,
-          image: "/placeholder.svg?height=200&width=300",
+          topics: [
+            "Operations Management",
+            "Financial Management",
+            "Human Resources",
+            "Strategic Planning",
+            "Growth Strategies",
+            "Performance Metrics",
+          ],
         },
       ],
     },
   ]
 
-  // Flatten all courses for the dropdown
-  const allCourses = courseCategories.flatMap((category) =>
-    category.courses.map((course) => ({
-      id: course.id,
-      title: course.title,
-    })),
-  )
+  const benefits = [
+    {
+      icon: <Award className="w-8 h-8" />,
+      title: "Industry-Recognized Certifications",
+      description: "Earn globally recognized Cisco certifications that validate your networking expertise.",
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "Expert Instructors",
+      description: "Learn from certified Cisco professionals with real-world industry experience.",
+    },
+    {
+      icon: <Settings className="w-8 h-8" />,
+      title: "Hands-On Labs",
+      description: "Practice with real Cisco equipment and simulation tools for practical experience.",
+    },
+    {
+      icon: <BookOpen className="w-8 h-8" />,
+      title: "Comprehensive Curriculum",
+      description: "Complete training programs covering all aspects of Cisco technologies and networking.",
+    },
+  ]
+
+  const allCourses = courseCategories.flatMap((c) => c.courses).map((c) => ({ id: c.id, title: c.title }))
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <section className="bg-gradient-to-r from-teal-600 to-red-500 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Cisco Learning Academy</h1>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Master networking technologies with our comprehensive Cisco certification courses
-          </p>
-          <Button
-            className="mt-8 bg-white text-teal-600 hover:bg-gray-100"
-            onClick={() => enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })}
-          >
-            Enroll Now <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
+    <div className="bg-white">
+      <Header />
+
+      {/* ================================ HERO =============================== */}
+      <section className="pt-32 pb-20 px-4 relative overflow-hidden bg-gradient-to-br from-white via-teal-50/30 to-coral-50/30">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-100/40 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-coral-100/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
+          <div className="space-y-8">
+            <Badge className="bg-gradient-to-r from-teal-100 to-coral-100 text-teal-700 border-teal-200 px-4 py-2">
+              🎓 Cisco Learning Academy
+            </Badge>
+
+            <div className="space-y-6">
+              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                Master{" "}
+                <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">Cisco</span>{" "}
+                Technologies
+              </h1>
+              <p className="text-xl text-gray-600 leading-relaxed">
+                Advance your networking career with our comprehensive Cisco training programs. From CCNA to advanced
+                cybersecurity, we provide hands-on training with industry-certified instructors to help you achieve your
+                certification goals.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                onClick={() => enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Enroll Now <ChevronDown className="w-5 h-5 ml-2" />
+              </Button>
+              <Link href="/contact">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 bg-white"
+                >
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900">2000+</div>
+                <div className="text-gray-500">Students Trained</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900">95%</div>
+                <div className="text-gray-500">Pass Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900">25+</div>
+                <div className="text-gray-500">Courses Available</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="relative z-10 transform hover:scale-105 transition-transform duration-500">
+              <img
+                src="/placeholder.svg?height=600&width=800"
+                alt="Cisco Learning and Training"
+                className="w-full h-auto rounded-2xl shadow-2xl border border-gray-100"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/10 to-coral-500/10 rounded-2xl"></div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Courses Grid */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Available Courses</h2>
-            <p className="text-gray-600 text-lg">
-              Choose from our selection of industry-recognized Cisco certification programs
+      {/* ============================== COURSES ============================== */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              Our{" "}
+              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+                Training Programs
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comprehensive Cisco certification training programs designed to advance your networking career
             </p>
           </div>
 
-          <div className="space-y-12">
+          <div className="space-y-16">
             {courseCategories.map((category) => (
-              <div key={category.category} id={category.category.toLowerCase().replace(/\s+/g, "-")}>
-                <h3 className="text-2xl font-bold mb-6 text-center">
-                  <span className="text-teal-600">{category.category}</span> Courses
+              <div key={category.category}>
+                <h3 className="text-3xl font-bold text-center mb-8">
+                  <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+                    {category.category}
+                  </span>{" "}
+                  Courses
                 </h3>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {category.courses.map((course) => (
-                    <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="aspect-video bg-gray-100 relative">
-                        <img
-                          src={course.image || "/placeholder.svg"}
-                          alt={course.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-4 right-4 flex gap-2">
-                          <Badge className="bg-teal-600">{course.level}</Badge>
-                          {course.accredited && <Badge className="bg-green-600">Accredited</Badge>}
-                          {course.beta && <Badge className="bg-orange-600">Beta</Badge>}
+                    <Card
+                      key={course.id}
+                      className={`bg-white border-gray-200 hover:border-teal-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
+                        course.featured ? "ring-2 ring-teal-200 bg-gradient-to-br from-teal-50/50 to-coral-50/50" : ""
+                      }`}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <Badge
+                            className={`${
+                              course.level === "Expert"
+                                ? "bg-red-100 text-red-700 border-red-200"
+                                : course.level === "Professional"
+                                  ? "bg-orange-100 text-orange-700 border-orange-200"
+                                  : course.level === "Advanced"
+                                    ? "bg-purple-100 text-purple-700 border-purple-200"
+                                    : "bg-green-100 text-green-700 border-green-200"
+                            }`}
+                          >
+                            {course.level}
+                          </Badge>
+                          {course.featured && (
+                            <Badge className="bg-teal-100 text-teal-700 border-teal-200">
+                              <Star className="w-3 h-3 mr-1" />
+                              Popular
+                            </Badge>
+                          )}
+                          {course.accredited && <Badge className="bg-green-100 text-green-700">Accredited</Badge>}
+                          {course.beta && <Badge className="bg-orange-100 text-orange-700">Beta</Badge>}
                         </div>
-                      </div>
 
-                      <CardHeader>
-                        <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
-                        <CardDescription className="text-gray-600 text-sm">{course.description}</CardDescription>
-                      </CardHeader>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h3>
+                        <p className="text-gray-600 mb-4 text-sm leading-relaxed">{course.description}</p>
 
-                      <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="w-4 h-4" />
                             <span>{course.duration}</span>
@@ -414,12 +669,26 @@ export default function CiscoLearningPage() {
                           </div>
                         </div>
 
+                        <div className="mb-6">
+                          <h4 className="text-sm font-semibold text-teal-600 mb-2">Topics Covered:</h4>
+                          <div className="space-y-1">
+                            {course.topics.slice(0, 3).map((topic, idx) => (
+                              <div key={idx} className="flex items-center text-xs text-gray-500">
+                                <CheckCircle className="w-3 h-3 text-teal-500 mr-2" />
+                                {topic}
+                              </div>
+                            ))}
+                            {course.topics.length > 3 && (
+                              <div className="text-xs text-gray-400">+{course.topics.length - 3} more topics</div>
+                            )}
+                          </div>
+                        </div>
+
                         <Button
-                          className="w-full bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600"
+                          className="w-full bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white shadow-lg"
                           onClick={() => handleEnrollClick(course.id)}
                         >
-                          <BookOpen className="w-4 h-4 mr-2" />
-                          Enroll Now
+                          Enroll Now <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </CardContent>
                     </Card>
@@ -431,20 +700,57 @@ export default function CiscoLearningPage() {
         </div>
       </section>
 
-      {/* Enrollment Form Section */}
-      <section className="bg-gray-50 py-16" ref={enrollFormRef} id="enrollment-form">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-4">Course Enrollment</h2>
-            <p className="text-gray-600 text-lg">
+      {/* ============================== BENEFITS ============================= */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              Why Choose Our{" "}
+              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+                Cisco Training?
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {benefits.map((benefit, index) => (
+              <Card
+                key={index}
+                className="bg-white border-gray-200 hover:border-coral-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+              >
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-coral-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+                    {benefit.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{benefit.title}</h3>
+                  <p className="text-gray-600 text-sm">{benefit.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================ ENROLL FORM ============================ */}
+      <section className="py-20 px-4 bg-gray-50" ref={enrollFormRef} id="enrollment-form">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+                Enroll Today
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600">
               Fill out the form below to enroll in your selected Cisco certification course
             </p>
           </div>
 
-          <Card>
+          <Card className="bg-white border-gray-200 shadow-xl">
             <CardHeader>
-              <CardTitle>Enrollment Application</CardTitle>
-              <CardDescription>Please provide your information to complete the enrollment process</CardDescription>
+              <CardTitle className="text-2xl text-center">Enrollment Application</CardTitle>
+              <CardDescription className="text-center">
+                Please provide your information to complete the enrollment process
+              </CardDescription>
             </CardHeader>
 
             <CardContent>
@@ -600,7 +906,7 @@ export default function CiscoLearningPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-teal-600 to-red-500 hover:from-teal-700 hover:to-red-600"
+                  className="w-full bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white py-4 text-lg font-semibold shadow-lg"
                   disabled={!formData.terms}
                 >
                   Submit Enrollment Application
@@ -610,7 +916,7 @@ export default function CiscoLearningPage() {
           </Card>
 
           {/* Contact Information */}
-          <Card className="mt-8">
+          <Card className="mt-8 bg-white border-gray-200">
             <CardHeader>
               <CardTitle>Need Help?</CardTitle>
             </CardHeader>
@@ -633,6 +939,42 @@ export default function CiscoLearningPage() {
           </Card>
         </div>
       </section>
+
+      {/* ================================ CTA ================================ */}
+      <section className="py-20 px-4 bg-gradient-to-br from-teal-50 to-coral-50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Ready to Start Your{" "}
+            <span className="bg-gradient-to-r from-teal-600 to-coral-500 bg-clip-text text-transparent">
+              Cisco Journey?
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Join thousands of professionals who have advanced their careers with our Cisco certification training
+            programs
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-teal-600 to-coral-500 hover:from-teal-700 hover:to-coral-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+              onClick={() => enrollFormRef.current?.scrollIntoView({ behavior: "smooth" })}
+            >
+              Get Started Today <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <Link href="/contact">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 bg-white"
+              >
+                Schedule Consultation
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
