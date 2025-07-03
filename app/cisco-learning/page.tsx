@@ -6,13 +6,11 @@ import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Users, BookOpen, ChevronDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Clock, Users, BookOpen, ChevronDown } from "lucide-react"
 
 export default function CiscoLearningPage() {
   const enrollFormRef = useRef<HTMLDivElement>(null)
@@ -454,7 +452,9 @@ export default function CiscoLearningPage() {
                 {/* Personal Information */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                      First Name *
+                    </label>
                     <Input
                       id="firstName"
                       value={formData.firstName}
@@ -463,7 +463,9 @@ export default function CiscoLearningPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                      Last Name *
+                    </label>
                     <Input
                       id="lastName"
                       value={formData.lastName}
@@ -474,7 +476,9 @@ export default function CiscoLearningPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
+                  <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email Address *
+                  </label>
                   <Input
                     id="email"
                     type="email"
@@ -485,7 +489,9 @@ export default function CiscoLearningPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                    Phone Number *
+                  </label>
                   <Input
                     id="phone"
                     type="tel"
@@ -497,7 +503,9 @@ export default function CiscoLearningPage() {
 
                 {/* Course Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="course">Select Course *</Label>
+                  <label htmlFor="course" className="text-sm font-medium text-gray-700">
+                    Select Course *
+                  </label>
                   <Select
                     value={formData.course}
                     onValueChange={(value) => setFormData({ ...formData, course: value })}
@@ -517,29 +525,58 @@ export default function CiscoLearningPage() {
 
                 {/* Experience Level */}
                 <div className="space-y-3">
-                  <Label>Current Experience Level *</Label>
-                  <RadioGroup
-                    value={formData.experience}
-                    onValueChange={(value) => setFormData({ ...formData, experience: value })}
-                  >
+                  <label className="text-sm font-medium text-gray-700">Current Experience Level *</label>
+                  <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="beginner" id="beginner" />
-                      <Label htmlFor="beginner">Beginner - New to networking</Label>
+                      <input
+                        type="radio"
+                        id="beginner"
+                        name="experience"
+                        value="beginner"
+                        checked={formData.experience === "beginner"}
+                        onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+                      />
+                      <label htmlFor="beginner" className="text-sm text-gray-700">
+                        Beginner - New to networking
+                      </label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="intermediate" id="intermediate" />
-                      <Label htmlFor="intermediate">Intermediate - Some networking experience</Label>
+                      <input
+                        type="radio"
+                        id="intermediate"
+                        name="experience"
+                        value="intermediate"
+                        checked={formData.experience === "intermediate"}
+                        onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+                      />
+                      <label htmlFor="intermediate" className="text-sm text-gray-700">
+                        Intermediate - Some networking experience
+                      </label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="advanced" id="advanced" />
-                      <Label htmlFor="advanced">Advanced - Extensive networking background</Label>
+                      <input
+                        type="radio"
+                        id="advanced"
+                        name="experience"
+                        value="advanced"
+                        checked={formData.experience === "advanced"}
+                        onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+                      />
+                      <label htmlFor="advanced" className="text-sm text-gray-700">
+                        Advanced - Extensive networking background
+                      </label>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </div>
 
                 {/* Motivation */}
                 <div className="space-y-2">
-                  <Label htmlFor="motivation">Why do you want to take this course?</Label>
+                  <label htmlFor="motivation" className="text-sm font-medium text-gray-700">
+                    Why do you want to take this course?
+                  </label>
                   <Textarea
                     id="motivation"
                     placeholder="Tell us about your goals and motivation..."
@@ -556,9 +593,9 @@ export default function CiscoLearningPage() {
                     checked={formData.terms}
                     onCheckedChange={(checked) => setFormData({ ...formData, terms: checked as boolean })}
                   />
-                  <Label htmlFor="terms" className="text-sm">
+                  <label htmlFor="terms" className="text-sm text-gray-700">
                     I agree to the terms and conditions and privacy policy *
-                  </Label>
+                  </label>
                 </div>
 
                 <Button
