@@ -1,0 +1,117 @@
+/* Icon Font Styles */
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: inherit;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Icon definitions using Unicode characters */
+.icon-arrow-right::before {
+  content: "→";
+}
+.icon-mail::before {
+  content: "✉";
+}
+.icon-phone::before {
+  content: "☎";
+}
+.icon-map-pin::before {
+  content: "📍";
+}
+.icon-clock::before {
+  content: "🕐";
+}
+.icon-facebook::before {
+  content: "📘";
+}
+.icon-twitter::before {
+  content: "🐦";
+}
+.icon-linkedin::before {
+  content: "💼";
+}
+.icon-youtube::before {
+  content: "📺";
+}
+.icon-code::before {
+  content: "💻";
+}
+.icon-smartphone::before {
+  content: "📱";
+}
+.icon-cloud::before {
+  content: "☁";
+}
+.icon-chart::before {
+  content: "📊";
+}
+.icon-users::before {
+  content: "👥";
+}
+.icon-target::before {
+  content: "🎯";
+}
+.icon-zap::before {
+  content: "⚡";
+}
+.icon-shield::before {
+  content: "🛡";
+}
+.icon-award::before {
+  content: "🏆";
+}
+.icon-lightbulb::before {
+  content: "💡";
+}
+.icon-heart::before {
+  content: "❤";
+}
+.icon-eye::before {
+  content: "👁";
+}
+.icon-check::before {
+  content: "✓";
+}
+.icon-send::before {
+  content: "📤";
+}
+.icon-message-circle::before {
+  content: "💬";
+}
+.icon-palette::before {
+  content: "🎨";
+}
+.icon-database::before {
+  content: "🗄";
+}
+.icon-headphones::before {
+  content: "🎧";
+}
+.icon-check-circle::before {
+  content: "✅";
+}
+.icon-calculator::before {
+  content: "🧮";
+}
+.icon-user::before {
+  content: "👤";
+}
+.icon-calendar::before {
+  content: "📅";
+}
+.icon-external-link::before {
+  content: "🔗";
+}
+.icon-github::before {
+  content: "🐙";
+}
+.icon-filter::before {
+  content: "🔍";
+}
