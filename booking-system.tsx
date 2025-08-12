@@ -39,20 +39,37 @@ export default function BookingSystem() {
         const servicesResponse = await fetch("/api/services")
         if (servicesResponse.ok) {
           const servicesData = await servicesResponse.json()
-          setServices(servicesData)
+          if (Array.isArray(servicesData)) {
+            setServices(servicesData)
+          } else if (servicesData.services) {
+            setServices(servicesData.services)
+          }
+        } else {
+          console.error("Failed to fetch services from API")
         }
 
         // Load bookings
         const bookingsResponse = await fetch("/api/bookings")
         if (bookingsResponse.ok) {
           const bookingsData = await bookingsResponse.json()
-          setAllBookings(bookingsData)
+          if (Array.isArray(bookingsData)) {
+            setAllBookings(bookingsData)
+          } else if (bookingsData.bookings) {
+            setAllBookings(bookingsData.bookings)
+          }
+        } else {
+          console.error("Failed to fetch bookings from API")
         }
       } catch (error) {
-        console.error("Failed to load initial data:", error)
-        // Fallback to local data if API fails
-        const { services: fallbackServices } = await import("./data/services")
-        setServices(fallbackServices)
+        console.error("Error fetching services:", error)
+        try {
+          const { services: fallbackServices } = await import("./data/services")
+          setServices(fallbackServices)
+        } catch (importError) {
+          console.error("Failed to load fallback services:", importError)
+          // Set empty array if even fallback fails
+          setServices([])
+        }
       }
     }
 

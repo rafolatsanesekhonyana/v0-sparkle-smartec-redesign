@@ -2,26 +2,35 @@ import { createServerClient } from "../supabase/server"
 import type { Service } from "../../types/booking"
 
 export async function getAllServices(): Promise<Service[]> {
-  const supabase = createServerClient()
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from("services")
-    .select("*")
-    .eq("is_active", true)
-    .order("name", { ascending: true })
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq("is_active", true)
+      .order("name", { ascending: true })
 
-  if (error) {
-    console.error("Error fetching services:", error)
-    throw new Error("Failed to fetch services")
+    if (error) {
+      console.error("Database error fetching services:", error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return data.map((service) => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      duration: service.duration,
+      price: service.price,
+    }))
+  } catch (error) {
+    console.error("Unexpected error fetching services:", error)
+    return []
   }
-
-  return data.map((service) => ({
-    id: service.id,
-    name: service.name,
-    description: service.description,
-    duration: service.duration,
-    price: service.price,
-  }))
 }
 
 export async function createService(serviceData: {
@@ -29,22 +38,31 @@ export async function createService(serviceData: {
   description: string
   duration: number
   price: number
-}): Promise<Service> {
-  const supabase = createServerClient()
+}): Promise<Service | null> {
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase.from("services").insert(serviceData).select().single()
+    const { data, error } = await supabase.from("services").insert(serviceData).select().single()
 
-  if (error) {
-    console.error("Error creating service:", error)
-    throw new Error("Failed to create service")
-  }
+    if (error) {
+      console.error("Database error creating service:", error)
+      return null
+    }
 
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description,
-    duration: data.duration,
-    price: data.price,
+    if (!data) {
+      return null
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      duration: data.duration,
+      price: data.price,
+    }
+  } catch (error) {
+    console.error("Unexpected error creating service:", error)
+    return null
   }
 }
 

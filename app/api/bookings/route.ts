@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json(bookings)
   } catch (error) {
     console.error("API Error:", error)
-    return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch bookings", bookings: [] }, { status: 500 })
   }
 }
 
@@ -29,6 +29,10 @@ export async function POST(request: NextRequest) {
       time,
       notes,
     })
+
+    if (!booking) {
+      return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
+    }
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {

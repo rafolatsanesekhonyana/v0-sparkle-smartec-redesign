@@ -23,57 +23,75 @@ export interface DatabaseBooking {
 }
 
 export async function getAllBookings(): Promise<Booking[]> {
-  const supabase = createServerClient()
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(`
-      *,
-      services (
-        id,
-        name,
-        description,
-        duration,
-        price
-      )
-    `)
-    .order("booking_date", { ascending: true })
-    .order("booking_time", { ascending: true })
+    const { data, error } = await supabase
+      .from("bookings")
+      .select(`
+        *,
+        services (
+          id,
+          name,
+          description,
+          duration,
+          price
+        )
+      `)
+      .order("booking_date", { ascending: true })
+      .order("booking_time", { ascending: true })
 
-  if (error) {
-    console.error("Error fetching bookings:", error)
-    throw new Error("Failed to fetch bookings")
+    if (error) {
+      console.error("Database error fetching bookings:", error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return (data as DatabaseBooking[]).map(transformDatabaseBooking)
+  } catch (error) {
+    console.error("Unexpected error fetching bookings:", error)
+    return []
   }
-
-  return (data as DatabaseBooking[]).map(transformDatabaseBooking)
 }
 
 export async function getBookingsByDateRange(startDate: string, endDate: string): Promise<Booking[]> {
-  const supabase = createServerClient()
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(`
-      *,
-      services (
-        id,
-        name,
-        description,
-        duration,
-        price
-      )
-    `)
-    .gte("booking_date", startDate)
-    .lte("booking_date", endDate)
-    .order("booking_date", { ascending: true })
-    .order("booking_time", { ascending: true })
+    const { data, error } = await supabase
+      .from("bookings")
+      .select(`
+        *,
+        services (
+          id,
+          name,
+          description,
+          duration,
+          price
+        )
+      `)
+      .gte("booking_date", startDate)
+      .lte("booking_date", endDate)
+      .order("booking_date", { ascending: true })
+      .order("booking_time", { ascending: true })
 
-  if (error) {
-    console.error("Error fetching bookings by date range:", error)
-    throw new Error("Failed to fetch bookings")
+    if (error) {
+      console.error("Database error fetching bookings by date range:", error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return (data as DatabaseBooking[]).map(transformDatabaseBooking)
+  } catch (error) {
+    console.error("Unexpected error fetching bookings by date range:", error)
+    return []
   }
-
-  return (data as DatabaseBooking[]).map(transformDatabaseBooking)
 }
 
 export async function createBooking(bookingData: {
@@ -84,39 +102,48 @@ export async function createBooking(bookingData: {
   date: string
   time: string
   notes?: string
-}): Promise<Booking> {
-  const supabase = createServerClient()
+}): Promise<Booking | null> {
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert({
-      client_name: bookingData.clientName,
-      client_email: bookingData.clientEmail,
-      client_phone: bookingData.clientPhone,
-      service_id: bookingData.serviceId,
-      booking_date: bookingData.date.split("T")[0],
-      booking_time: bookingData.time,
-      notes: bookingData.notes,
-      status: "confirmed",
-    })
-    .select(`
-      *,
-      services (
-        id,
-        name,
-        description,
-        duration,
-        price
-      )
-    `)
-    .single()
+    const { data, error } = await supabase
+      .from("bookings")
+      .insert({
+        client_name: bookingData.clientName,
+        client_email: bookingData.clientEmail,
+        client_phone: bookingData.clientPhone,
+        service_id: bookingData.serviceId,
+        booking_date: bookingData.date.split("T")[0],
+        booking_time: bookingData.time,
+        notes: bookingData.notes,
+        status: "confirmed",
+      })
+      .select(`
+        *,
+        services (
+          id,
+          name,
+          description,
+          duration,
+          price
+        )
+      `)
+      .single()
 
-  if (error) {
-    console.error("Error creating booking:", error)
-    throw new Error("Failed to create booking")
+    if (error) {
+      console.error("Database error creating booking:", error)
+      return null
+    }
+
+    if (!data) {
+      return null
+    }
+
+    return transformDatabaseBooking(data as DatabaseBooking)
+  } catch (error) {
+    console.error("Unexpected error creating booking:", error)
+    return null
   }
-
-  return transformDatabaseBooking(data as DatabaseBooking)
 }
 
 export async function updateBookingStatus(bookingId: string, status: Booking["status"]): Promise<void> {
@@ -142,30 +169,39 @@ export async function deleteBooking(bookingId: string): Promise<void> {
 }
 
 export async function getBookingsForDate(date: string): Promise<Booking[]> {
-  const supabase = createServerClient()
+  try {
+    const supabase = createServerClient()
 
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(`
-      *,
-      services (
-        id,
-        name,
-        description,
-        duration,
-        price
-      )
-    `)
-    .eq("booking_date", date.split("T")[0])
-    .neq("status", "cancelled")
-    .order("booking_time", { ascending: true })
+    const { data, error } = await supabase
+      .from("bookings")
+      .select(`
+        *,
+        services (
+          id,
+          name,
+          description,
+          duration,
+          price
+        )
+      `)
+      .eq("booking_date", date.split("T")[0])
+      .neq("status", "cancelled")
+      .order("booking_time", { ascending: true })
 
-  if (error) {
-    console.error("Error fetching bookings for date:", error)
-    throw new Error("Failed to fetch bookings for date")
+    if (error) {
+      console.error("Database error fetching bookings for date:", error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return (data as DatabaseBooking[]).map(transformDatabaseBooking)
+  } catch (error) {
+    console.error("Unexpected error fetching bookings for date:", error)
+    return []
   }
-
-  return (data as DatabaseBooking[]).map(transformDatabaseBooking)
 }
 
 function transformDatabaseBooking(dbBooking: DatabaseBooking): Booking {

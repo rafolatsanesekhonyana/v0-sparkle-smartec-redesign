@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json(services)
   } catch (error) {
     console.error("API Error:", error)
-    return NextResponse.json({ error: "Failed to fetch services" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch services", services: [] }, { status: 500 })
   }
 }
 
@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
       duration,
       price,
     })
+
+    if (!service) {
+      return NextResponse.json({ error: "Failed to create service" }, { status: 500 })
+    }
 
     return NextResponse.json(service, { status: 201 })
   } catch (error) {
