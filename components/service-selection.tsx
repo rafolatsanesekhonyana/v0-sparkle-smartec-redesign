@@ -1,9 +1,8 @@
 "use client"
 
-import React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock } from "lucide-react"
+import { Clock, Sparkles } from "lucide-react"
 import type { Service } from "../types/booking"
 
 interface ServiceSelectionProps {
@@ -12,78 +11,63 @@ interface ServiceSelectionProps {
   onServiceSelect: (service: Service) => void
 }
 
-export const ServiceSelection = React.memo(function ServiceSelection({
-  services,
-  selectedService,
-  onServiceSelect,
-}: ServiceSelectionProps) {
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent, service: Service) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault()
-        onServiceSelect(service)
-      }
-    },
-    [onServiceSelect],
-  )
-
+export function ServiceSelection({ services, selectedService, onServiceSelect }: ServiceSelectionProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl sm:text-2xl font-semibold px-2 sm:px-0" id="service-selection-heading">
-        Select a Service
-      </h2>
-      <div
-        className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 px-2 sm:px-0"
-        role="radiogroup"
-        aria-labelledby="service-selection-heading"
-      >
-        {services.map((service) => (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-primary">Select Your Service</h2>
+        <p className="text-muted-foreground">Choose from our premium nail care treatments</p>
+      </div>
+
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 px-2 sm:px-0">
+        {services.map((service, index) => (
           <Card
             key={service.id}
-            className={`cursor-pointer transition-all hover:shadow-md focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 min-h-[140px] sm:min-h-[120px] ${
-              selectedService?.id === service.id ? "ring-2 ring-primary bg-primary/5" : ""
+            className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group relative overflow-hidden ${
+              selectedService?.id === service.id
+                ? "ring-2 ring-primary shadow-lg scale-[1.02] bg-gradient-to-br from-primary/5 to-primary/10"
+                : "hover:shadow-md"
             }`}
             onClick={() => onServiceSelect(service)}
-            onKeyDown={(e) => handleKeyDown(e, service)}
-            tabIndex={0}
-            role="radio"
-            aria-checked={selectedService?.id === service.id}
-            aria-describedby={`service-${service.id}-description`}
+            style={{ animationDelay: `${index * 100}ms` }}
           >
-            <CardHeader className="pb-3">
-              <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base sm:text-lg">
-                <span className="leading-tight">{service.name}</span>
+            {/* Decorative gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            <CardHeader className="pb-3 relative z-10">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 text-lg sm:text-xl">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="leading-tight font-serif">{service.name}</span>
+                </div>
                 <Badge
-                  variant="secondary"
-                  className="self-start sm:self-center text-sm"
-                  aria-label={`Price: M${service.price}`}
+                  variant={selectedService?.id === service.id ? "default" : "secondary"}
+                  className="self-start sm:self-center text-sm font-semibold px-3 py-1"
                 >
                   M{service.price}
                 </Badge>
               </CardTitle>
-              <CardDescription className="text-sm leading-relaxed" id={`service-${service.id}-description`}>
+              <CardDescription className="text-sm leading-relaxed text-muted-foreground pl-7">
                 {service.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1" aria-label={`Duration: ${service.duration} minutes`}>
-                  <Clock className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  <span>{service.duration} min</span>
+
+            <CardContent className="pt-0 relative z-10">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span>{service.duration} minutes</span>
                 </div>
-                <div className="flex items-center gap-1" aria-label={`Price: M${service.price}`}>
-                  <span>M{service.price}</span>
-                </div>
+                {selectedService?.id === service.id && (
+                  <Badge variant="default" className="text-xs">
+                    Selected
+                  </Badge>
+                )}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-      {services.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground" role="status" aria-live="polite">
-          No services available at the moment. Please try again later.
-        </div>
-      )}
     </div>
   )
-})
+}

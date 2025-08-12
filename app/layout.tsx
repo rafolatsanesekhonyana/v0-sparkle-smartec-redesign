@@ -4,9 +4,8 @@ import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { Toaster } from "@/components/toaster"
-import { SkipLink } from "@/components/accessibility-skip-link"
+import { ThemeProvider } from "next-themes"
 
-// Optimized font loading with display swap
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -20,14 +19,9 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "Brights' Nails Studio - Professional Nail Services",
-  description:
-    "Book your perfect nail appointment at Brights' Nails Studio. Professional manicures, pedicures, and nail art services.",
-  keywords: "nail salon, manicure, pedicure, nail art, booking, appointment",
-  authors: [{ name: "Brights' Nails Studio" }],
-  viewport: "width=device-width, initial-scale=1",
-  robots: "index, follow",
-    generator: 'v0.dev'
+  title: "Sparkle Nail Salon - Book Your Appointment",
+  description: "Professional nail services and spa treatments. Book your appointment online.",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -37,19 +31,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`}>
-      <head>
-        {/* Added preload hints for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="theme-color" content="#ec4899" />
-      </head>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <SkipLink />
+      <body className="font-sans">
         <ErrorBoundary>
-          <main id="main-content" tabIndex={-1}>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             {children}
-          </main>
-          <Toaster />
+            <Toaster />
+          </ThemeProvider>
         </ErrorBoundary>
       </body>
     </html>
