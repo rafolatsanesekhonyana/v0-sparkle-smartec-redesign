@@ -8,13 +8,28 @@ export async function getAllServices(): Promise<Service[]> {
       return []
     }
 
-    const supabase = createServerClient()
+    let supabase
+    try {
+      supabase = createServerClient()
+    } catch (clientError) {
+      console.error("Failed to create Supabase client:", clientError)
+      return []
+    }
 
-    const { data, error } = await supabase
-      .from("services")
-      .select("*")
-      .eq("is_active", true)
-      .order("name", { ascending: true })
+    let data, error
+    try {
+      const result = await supabase
+        .from("services")
+        .select("*")
+        .eq("is_active", true)
+        .order("name", { ascending: true })
+
+      data = result.data
+      error = result.error
+    } catch (queryError) {
+      console.error("Supabase query failed (possibly JSON parsing error):", queryError)
+      return []
+    }
 
     if (error) {
       console.error("Database error fetching services:", error)
