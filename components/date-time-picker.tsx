@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -44,6 +46,13 @@ export function DateTimePicker({
     }
   }
 
+  const handleTimeSlotKeyDown = (event: React.KeyboardEvent, time: string, available: boolean) => {
+    if ((event.key === "Enter" || event.key === " ") && available) {
+      event.preventDefault()
+      onTimeSelect(time)
+    }
+  }
+
   useEffect(() => {
     if (selectedDate) {
       const slots = generateTimeSlotsSync(selectedDate.toISOString(), existingBookings)
@@ -56,17 +65,21 @@ export function DateTimePicker({
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      <h2 className="text-xl sm:text-2xl font-semibold">Select Date & Time</h2>
+      <header>
+        <h2 className="text-xl sm:text-2xl font-semibold">Select Date & Time</h2>
+      </header>
 
-      <Alert>
-        <Info className="h-4 w-4" />
+      <Alert role="note">
+        <Info className="h-4 w-4" aria-hidden="true" />
         <AlertDescription>We're open Monday-Saturday, 9:00 AM - 6:00 PM. Sundays are closed for rest.</AlertDescription>
       </Alert>
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Choose Date</CardTitle>
+            <CardTitle className="text-lg sm:text-xl" id="date-selection-title">
+              Choose Date
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex justify-center">
             <Calendar
@@ -91,16 +104,25 @@ export function DateTimePicker({
                   color: "rgb(239, 68, 68)",
                 },
               }}
+              aria-labelledby="date-selection-title"
+              aria-describedby="date-selection-help"
             />
+            <div id="date-selection-help" className="sr-only">
+              Use arrow keys to navigate dates. Press Enter to select. Sundays and past dates are disabled.
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl flex items-center justify-between">
+            <CardTitle className="text-lg sm:text-xl flex items-center justify-between" id="time-selection-title">
               Available Times
               {selectedDate && (
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                  aria-label={`${availableSlots.length} time slots available`}
+                >
                   {availableSlots.length} available
                 </Badge>
               )}
@@ -110,12 +132,17 @@ export function DateTimePicker({
             {selectedDate ? (
               <div className="space-y-4">
                 {isLoadingSlots ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <div className="flex items-center justify-center py-8" role="status" aria-live="polite">
+                    <div
+                      className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+                      aria-hidden="true"
+                    ></div>
+                    <span className="sr-only">Loading available time slots...</span>
                   </div>
                 ) : timeSlots.length > 0 ? (
                   <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 max-h-80 overflow-y-auto">
+                    <fieldset className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 max-h-80 overflow-y-auto">
+                      <legend className="sr-only">Available appointment times</legend>
                       {timeSlots.map((slot) => (
                         <Button
                           key={slot.time}
@@ -123,32 +150,40 @@ export function DateTimePicker({
                           size="sm"
                           disabled={!slot.available}
                           onClick={() => onTimeSelect(slot.time)}
+                          onKeyDown={(e) => handleTimeSlotKeyDown(e, slot.time, slot.available)}
                           className="justify-center min-h-[44px] text-xs sm:text-sm"
+                          aria-pressed={selectedTime === slot.time}
+                          aria-describedby={!slot.available ? `slot-${slot.time}-status` : undefined}
                         >
                           <div className="flex flex-col items-center">
                             <span>{formatTime(slot.time)}</span>
                             {!slot.available && (
-                              <Badge variant="secondary" className="text-xs mt-1">
-                                Booked
-                              </Badge>
+                              <>
+                                <Badge variant="secondary" className="text-xs mt-1" aria-hidden="true">
+                                  Booked
+                                </Badge>
+                                <span id={`slot-${slot.time}-status`} className="sr-only">
+                                  This time slot is already booked
+                                </span>
+                              </>
                             )}
                           </div>
                         </Button>
                       ))}
-                    </div>
+                    </fieldset>
 
                     {bookedSlots.length > 0 && (
-                      <div className="pt-2 border-t">
+                      <div className="pt-2 border-t" role="status" aria-live="polite">
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="h-3 w-3" aria-hidden="true" />
                           {bookedSlots.length} time slot{bookedSlots.length !== 1 ? "s" : ""} already booked
                         </p>
                       </div>
                     )}
                   </>
                 ) : (
-                  <Alert>
-                    <Info className="h-4 w-4" />
+                  <Alert role="alert">
+                    <Info className="h-4 w-4" aria-hidden="true" />
                     <AlertDescription>
                       No available time slots for this date. Please choose another date.
                     </AlertDescription>
@@ -156,7 +191,9 @@ export function DateTimePicker({
                 )}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-8">Please select a date first</p>
+              <p className="text-muted-foreground text-center py-8" role="status">
+                Please select a date first
+              </p>
             )}
           </CardContent>
         </Card>

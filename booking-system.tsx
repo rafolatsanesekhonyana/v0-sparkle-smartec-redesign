@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, ArrowRight, Settings, AlertCircle, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react"
 import { ServiceSelection } from "./components/service-selection"
 import { DateTimePicker } from "./components/date-time-picker"
 import { ClientForm } from "./components/client-form"
@@ -15,6 +14,8 @@ import { AdminDashboard } from "./admin-dashboard"
 import type { Service, BookingFormData, Booking } from "./types/booking"
 import { useToast } from "@/hooks/use-toast"
 import { handleApiResponse, getErrorMessage, retryOperation } from "@/utils/error-utils"
+import { ErrorState } from "./components/error-state"
+import { ServiceSelectionSkeleton } from "./components/service-selection-skeleton"
 
 type BookingStep = "service" | "datetime" | "details" | "summary" | "confirmation"
 type ViewMode = "booking" | "admin"
@@ -76,6 +77,17 @@ export default function BookingSystem() {
 
     loadInitialData()
   }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && error) {
+        setError(null)
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [error])
 
   const steps: { key: BookingStep; title: string; description: string }[] = [
     { key: "service", title: "Service", description: "Choose your service" },
@@ -226,6 +238,13 @@ export default function BookingSystem() {
     }
   }
 
+  const focusMainContent = () => {
+    const mainContent = document.getElementById("booking-main-content")
+    if (mainContent) {
+      mainContent.focus()
+    }
+  }
+
   const handleNext = () => {
     if (!validateCurrentStep()) {
       return
@@ -236,6 +255,7 @@ export default function BookingSystem() {
     if (currentIndex < stepOrder.length - 1) {
       setCurrentStep(stepOrder[currentIndex + 1])
       setError(null)
+      setTimeout(focusMainContent, 100)
     }
   }
 
@@ -246,6 +266,7 @@ export default function BookingSystem() {
       setCurrentStep(stepOrder[currentIndex - 1])
       setError(null)
       setValidationErrors({})
+      setTimeout(focusMainContent, 100)
     }
   }
 
@@ -408,118 +429,169 @@ export default function BookingSystem() {
 
   if (currentStep === "confirmation") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-2 sm:p-4">
-        <div className="max-w-2xl mx-auto py-4 sm:py-8">{renderStepContent()}</div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
+        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">{renderStepContent()}</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-2 sm:p-4">
-      <div className="max-w-7xl mx-auto py-4 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 px-2">
-          <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Brights' Nails Studio</h1>
-            <p className="text-base sm:text-lg text-gray-600">Book your perfect nail appointment</p>
-          </div>
-          <Button variant="outline" onClick={() => setViewMode("admin")} className="self-center sm:self-auto">
-            <Settings className="h-4 w-4 mr-2" />
-            Admin Panel
-          </Button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">
+        {/* Semantic header with proper heading hierarchy */}
+        <header className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-primary mb-4">
+            Sparkle Nail Salon
+          </h1>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Book your perfect nail appointment with our premium services
+          </p>
+        </header>
 
+        {/* Error announcement for screen readers */}
         {error && (
-          <Alert variant="destructive" className="mb-6 mx-2 sm:mx-0">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <div role="alert" aria-live="assertive" className="mb-6">
+            <ErrorState
+              title="Booking Error"
+              description={error}
+              onRetry={() => {
+                setError(null)
+                setRetryCount((prev) => prev + 1)
+              }}
+            />
+          </div>
         )}
 
-        {/* Progress */}
-        <Card className="mb-6 sm:mb-8 mx-2 sm:mx-0">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-lg sm:text-xl">Booking Progress</CardTitle>
-              <span className="text-xs sm:text-sm text-muted-foreground">
-                Step {currentStepIndex + 1} of {steps.length}
-              </span>
-            </div>
-            <Progress value={progress} className="w-full h-2" />
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-5 gap-1 sm:gap-2">
-              {steps.map((step, index) => (
-                <div
-                  key={step.key}
-                  className={`text-center ${index <= currentStepIndex ? "text-primary" : "text-muted-foreground"}`}
-                >
-                  <div className="text-xs sm:text-sm font-medium truncate flex items-center justify-center gap-1">
-                    {index < currentStepIndex && <CheckCircle2 className="h-3 w-3" />}
-                    {step.title}
-                  </div>
-                  <div className="text-xs hidden sm:block">{step.description}</div>
+        {/* Loading state with proper ARIA labels */}
+        {isLoading && currentStep === "service" && (
+          <div role="status" aria-label="Loading services">
+            <ServiceSelectionSkeleton />
+            <span className="sr-only">Loading available services...</span>
+          </div>
+        )}
+
+        {!isLoading && (
+          <>
+            {/* Progress indicator with accessibility improvements */}
+            <Card className="mb-6 sm:mb-8 mx-2 sm:mx-0">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg sm:text-xl" id="progress-title">
+                    Booking Progress
+                  </CardTitle>
+                  <span className="text-xs sm:text-sm text-muted-foreground" aria-describedby="progress-title">
+                    Step {currentStepIndex + 1} of {steps.length}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content */}
-        <div className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-3">
-          <div className="lg:col-span-2 order-2 lg:order-1">{renderStepContent()}</div>
-
-          {/* Sidebar */}
-          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2 px-2 sm:px-0">
-            {selectedService && currentStep !== "service" && (
-              <div className="lg:sticky lg:top-4">
-                <BookingSummary
-                  service={selectedService}
-                  formData={{ ...formData, time: selectedTime }}
-                  selectedDate={selectedDate}
+                <Progress
+                  value={progress}
+                  className="w-full h-2"
+                  aria-label={`Booking progress: ${Math.round(progress)}% complete`}
                 />
-              </div>
-            )}
-
-            {/* Navigation */}
-            <Card className="lg:sticky lg:top-4">
-              <CardContent className="pt-4 sm:pt-6">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {currentStep !== "service" && (
-                    <Button
-                      variant="outline"
-                      onClick={handlePrevious}
-                      className="flex-1 bg-transparent min-h-[44px] order-2 sm:order-1"
-                      disabled={isLoading}
+              </CardHeader>
+              <CardContent>
+                <nav aria-label="Booking steps" className="grid grid-cols-5 gap-1 sm:gap-2">
+                  {steps.map((step, index) => (
+                    <div
+                      key={step.key}
+                      className={`text-center ${index <= currentStepIndex ? "text-primary" : "text-muted-foreground"}`}
+                      aria-current={index === currentStepIndex ? "step" : undefined}
                     >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Previous
-                    </Button>
-                  )}
-
-                  {currentStep === "summary" ? (
-                    <Button
-                      onClick={handleConfirmBooking}
-                      className="flex-1 min-h-[44px] order-1 sm:order-2"
-                      disabled={!canProceedToNext() || isLoading}
-                    >
-                      {isLoading ? "Confirming..." : "Confirm Booking"}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleNext}
-                      className="flex-1 min-h-[44px] order-1 sm:order-2"
-                      disabled={!canProceedToNext() || isLoading}
-                    >
-                      Next
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  )}
-                </div>
+                      <div className="text-xs sm:text-sm font-medium truncate flex items-center justify-center gap-1">
+                        {index < currentStepIndex && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
+                        <span className={index < currentStepIndex ? "sr-only" : ""}>
+                          {index < currentStepIndex ? `${step.title} completed` : step.title}
+                        </span>
+                      </div>
+                      <div className="text-xs hidden sm:block" aria-hidden="true">
+                        {step.description}
+                      </div>
+                    </div>
+                  ))}
+                </nav>
               </CardContent>
             </Card>
-          </div>
-        </div>
+
+            <main className="grid gap-6 sm:gap-8 grid-cols-1 lg:grid-cols-3">
+              <section
+                className="lg:col-span-2 order-2 lg:order-1"
+                id="booking-main-content"
+                tabIndex={-1}
+                aria-label={`Step ${currentStepIndex + 1}: ${steps[currentStepIndex]?.title}`}
+              >
+                {renderStepContent()}
+              </section>
+
+              <aside
+                className="space-y-4 sm:space-y-6 order-1 lg:order-2 px-2 sm:px-0"
+                aria-label="Booking summary and navigation"
+              >
+                {selectedService && currentStep !== "service" && (
+                  <div className="lg:sticky lg:top-4">
+                    <BookingSummary
+                      service={selectedService}
+                      formData={{ ...formData, time: selectedTime }}
+                      selectedDate={selectedDate}
+                    />
+                  </div>
+                )}
+
+                <Card className="lg:sticky lg:top-4">
+                  <CardContent className="pt-4 sm:pt-6">
+                    <nav aria-label="Step navigation" className="flex flex-col sm:flex-row gap-3">
+                      {currentStep !== "service" && (
+                        <Button
+                          variant="outline"
+                          onClick={handlePrevious}
+                          className="flex-1 bg-transparent min-h-[44px] order-2 sm:order-1"
+                          disabled={isLoading}
+                          aria-describedby="prev-step-help"
+                        >
+                          <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
+                          Previous
+                        </Button>
+                      )}
+
+                      {currentStep === "summary" ? (
+                        <Button
+                          onClick={handleConfirmBooking}
+                          className="flex-1 min-h-[44px] order-1 sm:order-2"
+                          disabled={!canProceedToNext() || isLoading}
+                          aria-describedby="confirm-help"
+                        >
+                          {isLoading ? (
+                            <>
+                              <span className="sr-only">Confirming your booking...</span>
+                              Confirming...
+                            </>
+                          ) : (
+                            "Confirm Booking"
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={handleNext}
+                          className="flex-1 min-h-[44px] order-1 sm:order-2"
+                          disabled={!canProceedToNext() || isLoading}
+                          aria-describedby="next-step-help"
+                        >
+                          Next
+                          <ArrowRight className="h-4 w-4 ml-2" aria-hidden="true" />
+                        </Button>
+                      )}
+                    </nav>
+
+                    <div className="sr-only">
+                      <div id="prev-step-help">Go back to the previous step</div>
+                      <div id="next-step-help">Continue to the next step</div>
+                      <div id="confirm-help">Confirm and submit your booking</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </aside>
+            </main>
+          </>
+        )}
       </div>
     </div>
   )

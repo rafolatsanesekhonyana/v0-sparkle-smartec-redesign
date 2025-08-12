@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, User, Phone, Mail, MessageSquare } from "lucide-react"
 import type { BookingFormData } from "../types/booking"
 
 interface ClientFormProps {
@@ -15,55 +15,78 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ formData, onFormChange, validationErrors = {} }: ClientFormProps) {
+  const handleInputChange = (field: keyof BookingFormData, value: string) => {
+    onFormChange(field, value)
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      <h2 className="text-xl sm:text-2xl font-semibold">Your Information</h2>
+      <header>
+        <h2 className="text-xl sm:text-2xl font-semibold">Your Information</h2>
+        <p className="text-muted-foreground mt-2">Please provide your contact details for the appointment</p>
+      </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Contact Details</CardTitle>
+          <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+            <User className="h-5 w-5 text-primary" aria-hidden="true" />
+            Contact Details
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6">
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          <fieldset className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <legend className="sr-only">Personal information</legend>
+
             <div className="space-y-2">
-              <Label htmlFor="clientName" className="text-sm font-medium">
+              <Label htmlFor="clientName" className="text-sm font-medium flex items-center gap-2">
+                <User className="h-4 w-4" aria-hidden="true" />
                 Full Name *
               </Label>
               <Input
                 id="clientName"
                 value={formData.clientName || ""}
-                onChange={(e) => onFormChange("clientName", e.target.value)}
+                onChange={(e) => handleInputChange("clientName", e.target.value)}
                 placeholder="Enter your full name"
                 required
-                className={`min-h-[44px] ${validationErrors.clientName ? "border-red-500" : ""}`}
-                aria-describedby={validationErrors.clientName ? "clientName-error" : undefined}
+                autoComplete="name"
+                className={`min-h-[44px] transition-colors ${validationErrors.clientName ? "border-red-500 focus:border-red-500" : ""}`}
+                aria-describedby={validationErrors.clientName ? "clientName-error" : "clientName-help"}
+                aria-invalid={!!validationErrors.clientName}
               />
-              {validationErrors.clientName && (
-                <Alert variant="destructive" className="py-2">
-                  <AlertCircle className="h-4 w-4" />
+              {validationErrors.clientName ? (
+                <Alert variant="destructive" className="py-2" role="alert">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription className="text-sm" id="clientName-error">
                     {validationErrors.clientName}
                   </AlertDescription>
                 </Alert>
+              ) : (
+                <p className="text-xs text-muted-foreground" id="clientName-help">
+                  Your full name as you'd like it to appear in our records
+                </p>
               )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="clientPhone" className="text-sm font-medium">
+              <Label htmlFor="clientPhone" className="text-sm font-medium flex items-center gap-2">
+                <Phone className="h-4 w-4" aria-hidden="true" />
                 Phone Number *
               </Label>
               <Input
                 id="clientPhone"
                 type="tel"
                 value={formData.clientPhone || ""}
-                onChange={(e) => onFormChange("clientPhone", e.target.value)}
+                onChange={(e) => handleInputChange("clientPhone", e.target.value)}
                 placeholder="+266 62 123 456"
                 required
-                className={`min-h-[44px] ${validationErrors.clientPhone ? "border-red-500" : ""}`}
+                autoComplete="tel"
+                className={`min-h-[44px] transition-colors ${validationErrors.clientPhone ? "border-red-500 focus:border-red-500" : ""}`}
                 aria-describedby={validationErrors.clientPhone ? "clientPhone-error" : "clientPhone-help"}
+                aria-invalid={!!validationErrors.clientPhone}
               />
               {validationErrors.clientPhone ? (
-                <Alert variant="destructive" className="py-2">
-                  <AlertCircle className="h-4 w-4" />
+                <Alert variant="destructive" className="py-2" role="alert">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription className="text-sm" id="clientPhone-error">
                     {validationErrors.clientPhone}
                   </AlertDescription>
@@ -74,47 +97,61 @@ export function ClientForm({ formData, onFormChange, validationErrors = {} }: Cl
                 </p>
               )}
             </div>
-          </div>
+          </fieldset>
 
           <div className="space-y-2">
-            <Label htmlFor="clientEmail" className="text-sm font-medium">
+            <Label htmlFor="clientEmail" className="text-sm font-medium flex items-center gap-2">
+              <Mail className="h-4 w-4" aria-hidden="true" />
               Email Address *
             </Label>
             <Input
               id="clientEmail"
               type="email"
               value={formData.clientEmail || ""}
-              onChange={(e) => onFormChange("clientEmail", e.target.value)}
+              onChange={(e) => handleInputChange("clientEmail", e.target.value)}
               placeholder="your.email@example.com"
               required
-              className={`min-h-[44px] ${validationErrors.clientEmail ? "border-red-500" : ""}`}
-              aria-describedby={validationErrors.clientEmail ? "clientEmail-error" : undefined}
+              autoComplete="email"
+              className={`min-h-[44px] transition-colors ${validationErrors.clientEmail ? "border-red-500 focus:border-red-500" : ""}`}
+              aria-describedby={validationErrors.clientEmail ? "clientEmail-error" : "clientEmail-help"}
+              aria-invalid={!!validationErrors.clientEmail}
             />
-            {validationErrors.clientEmail && (
-              <Alert variant="destructive" className="py-2">
-                <AlertCircle className="h-4 w-4" />
+            {validationErrors.clientEmail ? (
+              <Alert variant="destructive" className="py-2" role="alert">
+                <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription className="text-sm" id="clientEmail-error">
                   {validationErrors.clientEmail}
                 </AlertDescription>
               </Alert>
+            ) : (
+              <p className="text-xs text-muted-foreground" id="clientEmail-help">
+                We'll send your appointment confirmation to this email
+              </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-sm font-medium">
+            <Label htmlFor="notes" className="text-sm font-medium flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" aria-hidden="true" />
               Special Requests or Notes
+              <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
             </Label>
             <Textarea
               id="notes"
               value={formData.notes || ""}
-              onChange={(e) => onFormChange("notes", e.target.value)}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
               placeholder="Any special requests, allergies, or preferences..."
               rows={4}
-              className="min-h-[100px] resize-none"
+              className="min-h-[100px] resize-none transition-colors"
+              aria-describedby="notes-help"
+              maxLength={500}
             />
-            <p className="text-xs text-muted-foreground">
-              Let us know about any allergies, preferred nail shapes, or special requests
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-muted-foreground" id="notes-help">
+                Let us know about any allergies, preferred nail shapes, or special requests
+              </p>
+              <span className="text-xs text-muted-foreground">{(formData.notes || "").length}/500</span>
+            </div>
           </div>
         </CardContent>
       </Card>

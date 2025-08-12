@@ -3,7 +3,7 @@ import type { Service } from "../../types/booking"
 
 export async function getAllServices(): Promise<Service[]> {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       console.warn("Supabase is not configured, returning empty services array")
       return []
     }
@@ -45,7 +45,7 @@ export async function createService(serviceData: {
   price: number
 }): Promise<Service | null> {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       console.warn("Supabase is not configured, cannot create service")
       return null
     }
@@ -86,7 +86,7 @@ export async function updateService(
   },
 ): Promise<void> {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       console.warn("Supabase is not configured, cannot update service")
       return
     }
@@ -107,7 +107,7 @@ export async function updateService(
 
 export async function deleteService(serviceId: string): Promise<void> {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       console.warn("Supabase is not configured, cannot delete service")
       return
     }
