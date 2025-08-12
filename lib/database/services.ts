@@ -1,8 +1,13 @@
-import { createServerClient } from "../supabase/server"
+import { createServerClient, isSupabaseConfigured } from "../supabase/server"
 import type { Service } from "../../types/booking"
 
 export async function getAllServices(): Promise<Service[]> {
   try {
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase is not configured, returning empty services array")
+      return []
+    }
+
     const supabase = createServerClient()
 
     const { data, error } = await supabase
@@ -40,6 +45,11 @@ export async function createService(serviceData: {
   price: number
 }): Promise<Service | null> {
   try {
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase is not configured, cannot create service")
+      return null
+    }
+
     const supabase = createServerClient()
 
     const { data, error } = await supabase.from("services").insert(serviceData).select().single()
@@ -75,23 +85,43 @@ export async function updateService(
     price: number
   },
 ): Promise<void> {
-  const supabase = createServerClient()
+  try {
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase is not configured, cannot update service")
+      return
+    }
 
-  const { error } = await supabase.from("services").update(serviceData).eq("id", serviceId)
+    const supabase = createServerClient()
 
-  if (error) {
-    console.error("Error updating service:", error)
+    const { error } = await supabase.from("services").update(serviceData).eq("id", serviceId)
+
+    if (error) {
+      console.error("Error updating service:", error)
+      throw new Error("Failed to update service")
+    }
+  } catch (error) {
+    console.error("Unexpected error updating service:", error)
     throw new Error("Failed to update service")
   }
 }
 
 export async function deleteService(serviceId: string): Promise<void> {
-  const supabase = createServerClient()
+  try {
+    if (!isSupabaseConfigured()) {
+      console.warn("Supabase is not configured, cannot delete service")
+      return
+    }
 
-  const { error } = await supabase.from("services").update({ is_active: false }).eq("id", serviceId)
+    const supabase = createServerClient()
 
-  if (error) {
-    console.error("Error deleting service:", error)
+    const { error } = await supabase.from("services").update({ is_active: false }).eq("id", serviceId)
+
+    if (error) {
+      console.error("Error deleting service:", error)
+      throw new Error("Failed to delete service")
+    }
+  } catch (error) {
+    console.error("Unexpected error deleting service:", error)
     throw new Error("Failed to delete service")
   }
 }

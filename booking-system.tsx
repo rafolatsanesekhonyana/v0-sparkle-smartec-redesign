@@ -13,6 +13,8 @@ import { BookingSummary } from "./components/booking-summary"
 import { BookingConfirmation } from "./components/booking-confirmation"
 import { AdminDashboard } from "./admin-dashboard"
 import type { Service, BookingFormData, Booking } from "./types/booking"
+import { useToast } from "@/hooks/use-toast"
+import { handleApiResponse, getErrorMessage, retryOperation } from "@/utils/error-utils"
 
 type BookingStep = "service" | "datetime" | "details" | "summary" | "confirmation"
 type ViewMode = "booking" | "admin"
@@ -30,46 +32,45 @@ export default function BookingSystem() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const { toast } = useToast()
+  const [retryCount, setRetryCount] = useState(0)
 
   // Load services and bookings from API on component mount
   useEffect(() => {
     const loadInitialData = async () => {
-      try {
-        // Load services
-        const servicesResponse = await fetch("/api/services")
-        if (servicesResponse.ok) {
-          const servicesData = await servicesResponse.json()
-          if (Array.isArray(servicesData)) {
-            setServices(servicesData)
-          } else if (servicesData.services) {
-            setServices(servicesData.services)
-          }
-        } else {
-          console.error("Failed to fetch services from API")
-        }
+      setIsLoading(true)
+      setError(null)
 
-        // Load bookings
-        const bookingsResponse = await fetch("/api/bookings")
-        if (bookingsResponse.ok) {
-          const bookingsData = await bookingsResponse.json()
-          if (Array.isArray(bookingsData)) {
-            setAllBookings(bookingsData)
-          } else if (bookingsData.bookings) {
-            setAllBookings(bookingsData.bookings)
-          }
-        } else {
-          console.error("Failed to fetch bookings from API")
+      try {
+        const data = await retryOperation(
+          async () => {
+            const response = await fetch("/api/services")
+            return await handleApiResponse<Service[]>(response)
+          },
+          3,
+          1000,
+        )
+
+        setServices(data)
+
+        if (data.length === 0) {
+          toast({
+            title: "No services available",
+            description: "Please contact us to schedule an appointment.",
+            variant: "default",
+          })
         }
       } catch (error) {
-        console.error("Error fetching services:", error)
-        try {
-          const { services: fallbackServices } = await import("./data/services")
-          setServices(fallbackServices)
-        } catch (importError) {
-          console.error("Failed to load fallback services:", importError)
-          // Set empty array if even fallback fails
-          setServices([])
-        }
+        const errorMessage = getErrorMessage(error)
+        setError(errorMessage)
+
+        toast({
+          title: "Failed to load services",
+          description: errorMessage,
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -256,32 +257,48 @@ export default function BookingSystem() {
     setError(null)
 
     try {
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const booking = await retryOperation(
+        async () => {
+          const response = await fetch("/api/bookings", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              clientName: formData.clientName,
+              clientEmail: formData.clientEmail,
+              clientPhone: formData.clientPhone,
+              serviceId: selectedService.id,
+              date: selectedDate.toISOString(),
+              time: selectedTime,
+              notes: formData.notes,
+            }),
+          })
+
+          return await handleApiResponse(response)
         },
-        body: JSON.stringify({
-          clientName: formData.clientName,
-          clientEmail: formData.clientEmail,
-          clientPhone: formData.clientPhone,
-          serviceId: selectedService.id,
-          date: selectedDate.toISOString(),
-          time: selectedTime,
-          notes: formData.notes,
-        }),
-      })
+        2,
+        1500,
+      )
 
-      if (!response.ok) {
-        throw new Error("Failed to create booking")
-      }
-
-      const booking = await response.json()
       setConfirmedBooking(booking)
       setAllBookings((prev) => [...prev, booking])
       setCurrentStep("confirmation")
-    } catch (err) {
-      setError("Failed to confirm booking. Please try again.")
+
+      toast({
+        title: "Booking confirmed!",
+        description: `Your appointment for ${selectedService.name} has been scheduled.`,
+        variant: "success",
+      })
+    } catch (error) {
+      const errorMessage = getErrorMessage(error)
+      setError(errorMessage)
+
+      toast({
+        title: "Booking failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
