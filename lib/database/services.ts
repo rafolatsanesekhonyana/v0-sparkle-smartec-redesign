@@ -1,56 +1,67 @@
-import { createServerClient, isSupabaseConfigured } from "../supabase/server"
 import type { Service } from "../../types/booking"
 
+const fallbackServices: Service[] = [
+  {
+    id: "1",
+    name: "Classic Manicure",
+    description: "Basic nail care with polish application",
+    duration: 45,
+    price: 25.0,
+  },
+  {
+    id: "2",
+    name: "Gel Manicure",
+    description: "Long-lasting gel polish manicure",
+    duration: 60,
+    price: 35.0,
+  },
+  {
+    id: "3",
+    name: "Classic Pedicure",
+    description: "Relaxing foot care with polish",
+    duration: 60,
+    price: 30.0,
+  },
+  {
+    id: "4",
+    name: "Gel Pedicure",
+    description: "Long-lasting gel polish pedicure",
+    duration: 75,
+    price: 40.0,
+  },
+  {
+    id: "5",
+    name: "Nail Art",
+    description: "Custom nail art design",
+    duration: 90,
+    price: 50.0,
+  },
+  {
+    id: "6",
+    name: "French Manicure",
+    description: "Classic French tip manicure",
+    duration: 50,
+    price: 30.0,
+  },
+  {
+    id: "7",
+    name: "Acrylic Extensions",
+    description: "Full set of acrylic nail extensions",
+    duration: 120,
+    price: 60.0,
+  },
+  {
+    id: "8",
+    name: "Gel Extensions",
+    description: "Natural-looking gel nail extensions",
+    duration: 120,
+    price: 65.0,
+  },
+]
+
 export async function getAllServices(): Promise<Service[]> {
-  try {
-    if (!isSupabaseConfigured) {
-      console.warn("Supabase is not configured, returning empty services array")
-      return []
-    }
-
-    let supabase
-    try {
-      supabase = createServerClient()
-    } catch (clientError) {
-      console.error("Failed to create Supabase client:", clientError)
-      return []
-    }
-
-    let data, error
-    try {
-      const result = await supabase
-        .from("services")
-        .select("*")
-        .eq("is_active", true)
-        .order("name", { ascending: true })
-
-      data = result.data
-      error = result.error
-    } catch (queryError) {
-      console.error("Supabase query failed (possibly JSON parsing error):", queryError)
-      return []
-    }
-
-    if (error) {
-      console.error("Database error fetching services:", error)
-      return []
-    }
-
-    if (!data) {
-      return []
-    }
-
-    return data.map((service) => ({
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      duration: service.duration,
-      price: service.price,
-    }))
-  } catch (error) {
-    console.error("Unexpected error fetching services:", error)
-    return []
-  }
+  console.log("Using fallback services - database tables need to be created")
+  return fallbackServices
 }
 
 export async function createService(serviceData: {
@@ -59,36 +70,8 @@ export async function createService(serviceData: {
   duration: number
   price: number
 }): Promise<Service | null> {
-  try {
-    if (!isSupabaseConfigured) {
-      console.warn("Supabase is not configured, cannot create service")
-      return null
-    }
-
-    const supabase = createServerClient()
-
-    const { data, error } = await supabase.from("services").insert(serviceData).select().single()
-
-    if (error) {
-      console.error("Database error creating service:", error)
-      return null
-    }
-
-    if (!data) {
-      return null
-    }
-
-    return {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      duration: data.duration,
-      price: data.price,
-    }
-  } catch (error) {
-    console.error("Unexpected error creating service:", error)
-    return null
-  }
+  console.warn("Service creation disabled - database tables need to be created")
+  return null
 }
 
 export async function updateService(
@@ -100,43 +83,9 @@ export async function updateService(
     price: number
   },
 ): Promise<void> {
-  try {
-    if (!isSupabaseConfigured) {
-      console.warn("Supabase is not configured, cannot update service")
-      return
-    }
-
-    const supabase = createServerClient()
-
-    const { error } = await supabase.from("services").update(serviceData).eq("id", serviceId)
-
-    if (error) {
-      console.error("Error updating service:", error)
-      throw new Error("Failed to update service")
-    }
-  } catch (error) {
-    console.error("Unexpected error updating service:", error)
-    throw new Error("Failed to update service")
-  }
+  console.warn("Service update disabled - database tables need to be created")
 }
 
 export async function deleteService(serviceId: string): Promise<void> {
-  try {
-    if (!isSupabaseConfigured) {
-      console.warn("Supabase is not configured, cannot delete service")
-      return
-    }
-
-    const supabase = createServerClient()
-
-    const { error } = await supabase.from("services").update({ is_active: false }).eq("id", serviceId)
-
-    if (error) {
-      console.error("Error deleting service:", error)
-      throw new Error("Failed to delete service")
-    }
-  } catch (error) {
-    console.error("Unexpected error deleting service:", error)
-    throw new Error("Failed to delete service")
-  }
+  console.warn("Service deletion disabled - database tables need to be created")
 }
